@@ -14,15 +14,19 @@ class DoubleBottomDetector(BaseDetector):
 
         # Double bottom parameters
         self.min_pattern_length = 40  # Minimum days for pattern
-        self.max_bottom_distance = 0.03  # Maximum distance between bottoms as percentage
+        self.max_bottom_distance = (
+            0.03  # Maximum distance between bottoms as percentage
+        )
         self.min_retracement_height = 0.02  # Minimum retracement height between bottoms
-        self.max_neckline_distance = 0.015  # Maximum distance from neckline as percentage
+        self.max_neckline_distance = (
+            0.015  # Maximum distance from neckline as percentage
+        )
         self.min_volume_spike = 1.5  # Minimum volume spike for breakout
         self.neckline_lookback = 10  # Lookback period for neckline
 
     def get_required_columns(self) -> List[str]:
         """Get required columns for pattern detection"""
-        return ['open', 'high', 'low', 'close', 'volume']
+        return ["open", "high", "low", "close", "volume"]
 
     def detect_pattern(self, data: pd.DataFrame) -> List[PatternSignal]:
         """Detect Double Bottom patterns in the data"""
@@ -42,7 +46,9 @@ class DoubleBottomDetector(BaseDetector):
 
         return signals
 
-    def _analyze_double_bottom(self, data: pd.DataFrame, end_idx: int) -> List[PatternSignal]:
+    def _analyze_double_bottom(
+        self, data: pd.DataFrame, end_idx: int
+    ) -> List[PatternSignal]:
         """Analyze potential double bottom pattern ending at end_idx"""
         signals = []
 
@@ -72,7 +78,12 @@ class DoubleBottomDetector(BaseDetector):
 
                     # Check for neckline formation
                     neckline_signals = self._analyze_neckline_and_breakout(
-                        data, bottom1_idx, bottom2_idx, end_idx, bottom1_price, bottom2_price
+                        data,
+                        bottom1_idx,
+                        bottom2_idx,
+                        end_idx,
+                        bottom1_price,
+                        bottom2_price,
                     )
 
                     signals.extend(neckline_signals)
@@ -89,14 +100,14 @@ class DoubleBottomDetector(BaseDetector):
         try:
             # Find local minima
             for i in range(1, len(data) - 1):
-                current_low = data['low'].iloc[i]
-                prev_low = data['low'].iloc[i - 1]
-                next_low = data['low'].iloc[i + 1]
+                current_low = data["low"].iloc[i]
+                prev_low = data["low"].iloc[i - 1]
+                next_low = data["low"].iloc[i + 1]
 
                 # Check if it's a local minimum
                 if current_low < prev_low and current_low < next_low:
                     # Check if it's significant (not too small a dip)
-                    recent_high = data.iloc[max(0, i-5):i+5]['high'].max()
+                    recent_high = data.iloc[max(0, i - 5) : i + 5]["high"].max()
                     dip_ratio = (recent_high - current_low) / recent_high
 
                     if dip_ratio > self.min_retracement_height:
@@ -107,9 +118,15 @@ class DoubleBottomDetector(BaseDetector):
 
         return bottom_candidates
 
-    def _analyze_neckline_and_breakout(self, data: pd.DataFrame, bottom1_idx: int,
-                                     bottom2_idx: int, current_idx: int,
-                                     bottom1_price: float, bottom2_price: float) -> List[PatternSignal]:
+    def _analyze_neckline_and_breakout(
+        self,
+        data: pd.DataFrame,
+        bottom1_idx: int,
+        bottom2_idx: int,
+        current_idx: int,
+        bottom1_price: float,
+        bottom2_price: float,
+    ) -> List[PatternSignal]:
         """Analyze neckline and breakout signal"""
         signals = []
 
@@ -132,17 +149,17 @@ class DoubleBottomDetector(BaseDetector):
                 breakout_search_data = data.iloc[breakout_search_start:current_idx]
 
                 for i, row in breakout_search_data.iterrows():
-                    if row['high'] > neckline:
+                    if row["high"] > neckline:
                         breakout_idx = i
-                        breakout_price = row['high']
-                        breakout_volume = row['volume']
+                        breakout_price = row["high"]
+                        breakout_volume = row["volume"]
                         break
 
             if breakout_idx is None:
                 return signals
 
             # Check volume surge on breakout
-            avg_volume = data.iloc[breakout_search_start:breakout_idx]['volume'].mean()
+            avg_volume = data.iloc[breakout_search_start:breakout_idx]["volume"].mean()
             if breakout_volume < avg_volume * self.min_volume_spike:
                 return signals
 
@@ -158,7 +175,7 @@ class DoubleBottomDetector(BaseDetector):
                 abs(bottom1_price - bottom2_price) / lower_bottom,
                 pattern_height / neckline,
                 breakout_volume / avg_volume,
-                (breakout_idx - bottom1_idx) / self.min_pattern_length
+                (breakout_idx - bottom1_idx) / self.min_pattern_length,
             )
 
             if confidence >= self.config.min_confidence:
@@ -172,14 +189,14 @@ class DoubleBottomDetector(BaseDetector):
                     timeframe=self.config.timeframe,
                     timestamp=data.index[breakout_idx],
                     metadata={
-                        'bottom1_price': bottom1_price,
-                        'bottom2_price': bottom2_price,
-                        'neckline': neckline,
-                        'pattern_height': pattern_height,
-                        'volume_ratio': breakout_volume / avg_volume,
-                        'pattern_duration': breakout_idx - bottom1_idx,
-                        'pattern_quality': 'high' if confidence > 0.8 else 'medium'
-                    }
+                        "bottom1_price": bottom1_price,
+                        "bottom2_price": bottom2_price,
+                        "neckline": neckline,
+                        "pattern_height": pattern_height,
+                        "volume_ratio": breakout_volume / avg_volume,
+                        "pattern_duration": breakout_idx - bottom1_idx,
+                        "pattern_quality": "high" if confidence > 0.8 else "medium",
+                    },
                 )
                 signals.append(signal)
 
@@ -188,9 +205,13 @@ class DoubleBottomDetector(BaseDetector):
 
         return signals
 
-    def _calculate_double_bottom_confidence(self, bottom_distance_ratio: float,
-                                          height_ratio: float, volume_ratio: float,
-                                          duration_ratio: float) -> float:
+    def _calculate_double_bottom_confidence(
+        self,
+        bottom_distance_ratio: float,
+        height_ratio: float,
+        volume_ratio: float,
+        duration_ratio: float,
+    ) -> float:
         """Calculate confidence score for double bottom pattern"""
 
         # Base confidence factors
@@ -200,7 +221,11 @@ class DoubleBottomDetector(BaseDetector):
         duration_score = min(1.0, duration_ratio)  # Longer pattern = better score
 
         # Weighted average
-        confidence = (0.2 * distance_score + 0.2 * height_score +
-                    0.4 * volume_score + 0.2 * duration_score)
+        confidence = (
+            0.2 * distance_score
+            + 0.2 * height_score
+            + 0.4 * volume_score
+            + 0.2 * duration_score
+        )
 
         return max(0.0, min(1.0, confidence))

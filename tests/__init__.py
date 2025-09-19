@@ -1,6 +1,14 @@
 """Test suite for trading pattern detection system"""
 
-from .test_core_interfaces import TestPatternConfig, TestPatternSignal, TestDataValidator, TestEnhancedPatternDetector, TestBaseDetector, TestPatternEngine
+from .test_core_interfaces import (
+    TestPatternConfig,
+    TestPatternSignal,
+    TestDataValidator,
+    TestEnhancedPatternDetector,
+    TestBaseDetector,
+    TestPatternEngine,
+)
+
 # Additional test modules will be created as needed
 # from .test_detectors import TestDetectors
 # from .test_analyzers import TestAnalyzers
@@ -10,10 +18,10 @@ from .test_core_interfaces import TestPatternConfig, TestPatternSignal, TestData
 # from .test_integration import TestIntegration
 
 __all__ = [
-    'TestPatternConfig',
-    'TestPatternSignal',
-    'TestDataValidator',
-    'TestEnhancedPatternDetector',
-    'TestBaseDetector',
-    'TestPatternEngine'
+    "TestPatternConfig",
+    "TestPatternSignal",
+    "TestDataValidator",
+    "TestEnhancedPatternDetector",
+    "TestBaseDetector",
+    "TestPatternEngine",
 ]

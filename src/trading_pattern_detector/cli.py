@@ -30,10 +30,10 @@ def setup_logging(verbose: bool = False) -> None:
     level = logging.DEBUG if verbose else logging.INFO
     logging.basicConfig(
         level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
             logging.StreamHandler(sys.stdout),
-        ]
+        ],
     )
 
 
@@ -55,7 +55,7 @@ def load_data(file_path: str) -> pd.DataFrame:
         data = pd.read_csv(file_path)
 
         # Validate required columns
-        required_columns = ['open', 'high', 'low', 'close', 'volume']
+        required_columns = ["open", "high", "low", "close", "volume"]
         missing_columns = [col for col in required_columns if col not in data.columns]
 
         if missing_columns:
@@ -96,18 +96,18 @@ def analyze_patterns(args: argparse.Namespace) -> None:
         results = []
         for signal in signals:
             result = {
-                'pattern_type': signal.pattern_type.name,
-                'confidence': signal.confidence,
-                'entry_price': signal.entry_price,
-                'stop_loss': signal.stop_loss,
-                'target_price': signal.target_price,
-                'timeframe': signal.timeframe,
-                'timestamp': signal.timestamp.isoformat(),
-                'metadata': signal.metadata,
+                "pattern_type": signal.pattern_type.name,
+                "confidence": signal.confidence,
+                "entry_price": signal.entry_price,
+                "stop_loss": signal.stop_loss,
+                "target_price": signal.target_price,
+                "timeframe": signal.timeframe,
+                "timestamp": signal.timestamp.isoformat(),
+                "metadata": signal.metadata,
             }
             results.append(result)
 
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             json.dump(results, f, indent=2)
 
         logging.info(f"Results saved to {args.output}")
@@ -126,7 +126,9 @@ def analyze_patterns(args: argparse.Namespace) -> None:
             print(f"  Entry Price: ${signal.entry_price:.2f}")
             print(f"  Stop Loss: ${signal.stop_loss:.2f}")
             print(f"  Target Price: ${signal.target_price:.2f}")
-            print(f"  Risk/Reward Ratio: {signal.target_price/signal.entry_price:.2f}:1")
+            print(
+                f"  Risk/Reward Ratio: {signal.target_price/signal.entry_price:.2f}:1"
+            )
             print(f"  Timeframe: {signal.timeframe}")
             print(f"  Timestamp: {signal.timestamp}")
 
@@ -137,12 +139,12 @@ def analyze_patterns(args: argparse.Namespace) -> None:
 def list_patterns(args: argparse.Namespace) -> None:
     """List available pattern types"""
     patterns = [
-        'VCP_BREAKOUT - Volatility Contraction Pattern Breakout',
-        'FLAG_PATTERN - Flag/Pennant Continuation Pattern',
-        'CUP_HANDLE - Cup and Handle Pattern',
-        'DOUBLE_BOTTOM - Double Bottom Reversal Pattern',
-        'ASCENDING_TRIANGLE - Ascending Triangle Pattern',
-        'WEDGE_PATTERN - Wedge Pattern',
+        "VCP_BREAKOUT - Volatility Contraction Pattern Breakout",
+        "FLAG_PATTERN - Flag/Pennant Continuation Pattern",
+        "CUP_HANDLE - Cup and Handle Pattern",
+        "DOUBLE_BOTTOM - Double Bottom Reversal Pattern",
+        "ASCENDING_TRIANGLE - Ascending Triangle Pattern",
+        "WEDGE_PATTERN - Wedge Pattern",
     ]
 
     print("Available Trading Patterns:")
@@ -163,7 +165,7 @@ def generate_sample_data(args: argparse.Namespace) -> None:
 
     # Generate date range
     start_date = datetime.now() - timedelta(days=args.days)
-    dates = pd.date_range(start=start_date, periods=args.days, freq='D')
+    dates = pd.date_range(start=start_date, periods=args.days, freq="D")
 
     # Generate price data with some patterns
     base_price = args.base_price
@@ -180,22 +182,24 @@ def generate_sample_data(args: argparse.Namespace) -> None:
 
     # Create OHLCV data
     data = pd.DataFrame(index=dates)
-    data['close'] = prices
-    data['open'] = [p * (1 + np.random.normal(0, 0.001)) for p in prices]
-    data['high'] = [p * (1 + abs(np.random.normal(0, 0.01))) for p in prices]
-    data['low'] = [p * (1 - abs(np.random.normal(0, 0.01))) for p in prices]
-    data['volume'] = np.random.lognormal(15, 1, args.days)
+    data["close"] = prices
+    data["open"] = [p * (1 + np.random.normal(0, 0.001)) for p in prices]
+    data["high"] = [p * (1 + abs(np.random.normal(0, 0.01))) for p in prices]
+    data["low"] = [p * (1 - abs(np.random.normal(0, 0.01))) for p in prices]
+    data["volume"] = np.random.lognormal(15, 1, args.days)
 
     # Save to CSV
     data.to_csv(args.output)
     logging.info(f"Sample data saved to {args.output}")
-    print(f"Generated {args.days} days of sample data starting from {start_date.date()}")
+    print(
+        f"Generated {args.days} days of sample data starting from {start_date.date()}"
+    )
 
 
 def create_parser() -> argparse.ArgumentParser:
     """Create argument parser for CLI"""
     parser = argparse.ArgumentParser(
-        description='Trading Pattern Detector - Analyze market data for trading patterns',
+        description="Trading Pattern Detector - Analyze market data for trading patterns",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -203,44 +207,84 @@ Examples:
   trading-pattern-detector analyze data.csv --symbol AAPL --output results.json
   trading-pattern-detector patterns
   trading-pattern-detector sample-data --days 100 --output sample.csv
-        """
+        """,
     )
 
     parser.add_argument(
-        '--verbose', '-v',
-        action='store_true',
-        help='Enable verbose logging'
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Analyze command
-    analyze_parser = subparsers.add_parser('analyze', help='Analyze patterns in market data')
-    analyze_parser.add_argument('input', help='Input CSV file path')
-    analyze_parser.add_argument('--symbol', '-s', required=True, help='Symbol to analyze')
-    analyze_parser.add_argument('--min-confidence', '-c', type=float, default=0.6,
-                               help='Minimum confidence threshold (default: 0.6)')
-    analyze_parser.add_argument('--max-lookback', '-l', type=int, default=100,
-                               help='Maximum historical data to analyze (default: 100)')
-    analyze_parser.add_argument('--timeframe', '-t', default='1d',
-                               help='Data timeframe (default: 1d)')
-    analyze_parser.add_argument('--volume-threshold', type=float, default=1000000.0,
-                               help='Minimum volume threshold (default: 1000000.0)')
-    analyze_parser.add_argument('--volatility-threshold', type=float, default=0.001,
-                               help='Volatility threshold (default: 0.001)')
-    analyze_parser.add_argument('--reward-ratio', type=float, default=2.0,
-                               help='Risk/reward ratio (default: 2.0)')
-    analyze_parser.add_argument('--output', '-o', help='Output JSON file path')
+    analyze_parser = subparsers.add_parser(
+        "analyze", help="Analyze patterns in market data"
+    )
+    analyze_parser.add_argument("input", help="Input CSV file path")
+    analyze_parser.add_argument(
+        "--symbol", "-s", required=True, help="Symbol to analyze"
+    )
+    analyze_parser.add_argument(
+        "--min-confidence",
+        "-c",
+        type=float,
+        default=0.6,
+        help="Minimum confidence threshold (default: 0.6)",
+    )
+    analyze_parser.add_argument(
+        "--max-lookback",
+        "-l",
+        type=int,
+        default=100,
+        help="Maximum historical data to analyze (default: 100)",
+    )
+    analyze_parser.add_argument(
+        "--timeframe", "-t", default="1d", help="Data timeframe (default: 1d)"
+    )
+    analyze_parser.add_argument(
+        "--volume-threshold",
+        type=float,
+        default=1000000.0,
+        help="Minimum volume threshold (default: 1000000.0)",
+    )
+    analyze_parser.add_argument(
+        "--volatility-threshold",
+        type=float,
+        default=0.001,
+        help="Volatility threshold (default: 0.001)",
+    )
+    analyze_parser.add_argument(
+        "--reward-ratio",
+        type=float,
+        default=2.0,
+        help="Risk/reward ratio (default: 2.0)",
+    )
+    analyze_parser.add_argument("--output", "-o", help="Output JSON file path")
 
     # Patterns command
-    patterns_parser = subparsers.add_parser('patterns', help='List available pattern types')
+    patterns_parser = subparsers.add_parser(
+        "patterns", help="List available pattern types"
+    )
 
     # Sample data command
-    sample_parser = subparsers.add_parser('sample-data', help='Generate sample market data')
-    sample_parser.add_argument('--days', type=int, default=100, help='Number of days to generate (default: 100)')
-    sample_parser.add_argument('--base-price', type=float, default=100.0, help='Base price (default: 100.0)')
-    sample_parser.add_argument('--volatility', type=float, default=0.02, help='Volatility (default: 0.02)')
-    sample_parser.add_argument('--output', '-o', required=True, help='Output CSV file path')
+    sample_parser = subparsers.add_parser(
+        "sample-data", help="Generate sample market data"
+    )
+    sample_parser.add_argument(
+        "--days",
+        type=int,
+        default=100,
+        help="Number of days to generate (default: 100)",
+    )
+    sample_parser.add_argument(
+        "--base-price", type=float, default=100.0, help="Base price (default: 100.0)"
+    )
+    sample_parser.add_argument(
+        "--volatility", type=float, default=0.02, help="Volatility (default: 0.02)"
+    )
+    sample_parser.add_argument(
+        "--output", "-o", required=True, help="Output CSV file path"
+    )
 
     return parser
 
@@ -251,19 +295,19 @@ def main() -> None:
     args = parser.parse_args()
 
     # Setup logging
-    setup_logging(args.verbose if hasattr(args, 'verbose') else False)
+    setup_logging(args.verbose if hasattr(args, "verbose") else False)
 
     # Execute command
-    if args.command == 'analyze':
+    if args.command == "analyze":
         analyze_patterns(args)
-    elif args.command == 'patterns':
+    elif args.command == "patterns":
         list_patterns(args)
-    elif args.command == 'sample-data':
+    elif args.command == "sample-data":
         generate_sample_data(args)
     else:
         parser.print_help()
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

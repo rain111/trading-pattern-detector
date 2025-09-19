@@ -24,7 +24,7 @@ class CupHandleDetector(BaseDetector):
 
     def get_required_columns(self) -> List[str]:
         """Get required columns for pattern detection"""
-        return ['open', 'high', 'low', 'close', 'volume']
+        return ["open", "high", "low", "close", "volume"]
 
     def detect_pattern(self, data: pd.DataFrame) -> List[PatternSignal]:
         """Detect Cup and Handle patterns in the data"""
@@ -44,7 +44,9 @@ class CupHandleDetector(BaseDetector):
 
         return signals
 
-    def _analyze_cup_pattern(self, data: pd.DataFrame, end_idx: int) -> List[PatternSignal]:
+    def _analyze_cup_pattern(
+        self, data: pd.DataFrame, end_idx: int
+    ) -> List[PatternSignal]:
         """Analyze potential cup pattern ending at end_idx"""
         signals = []
 
@@ -54,8 +56,8 @@ class CupHandleDetector(BaseDetector):
             cup_data = data.iloc[cup_start:end_idx]
 
             # Find cup high and low points
-            cup_high = cup_data['high'].max()
-            cup_low = cup_data['low'].min()
+            cup_high = cup_data["high"].max()
+            cup_low = cup_data["low"].min()
 
             # Calculate cup depth
             cup_depth = (cup_high - cup_low) / cup_high
@@ -66,13 +68,15 @@ class CupHandleDetector(BaseDetector):
 
             # Check if cup has proper U-shape
             cup_mid_idx = cup_start + len(cup_data) // 2
-            first_half_high = cup_data.iloc[:len(cup_data)//2]['high'].mean()
-            second_half_high = cup_data.iloc[len(cup_data)//2:]['high'].mean()
+            first_half_high = cup_data.iloc[: len(cup_data) // 2]["high"].mean()
+            second_half_high = cup_data.iloc[len(cup_data) // 2 :]["high"].mean()
 
             # Cup should show rounding bottom pattern
             if second_half_high > first_half_high * 1.02:  # Right side higher
                 # Check for handle formation
-                handle_signals = self._analyze_handle_pattern(data, end_idx, cup_high, cup_low)
+                handle_signals = self._analyze_handle_pattern(
+                    data, end_idx, cup_high, cup_low, cup_depth
+                )
                 signals.extend(handle_signals)
 
         except Exception as e:
@@ -80,15 +84,23 @@ class CupHandleDetector(BaseDetector):
 
         return signals
 
-    def _analyze_handle_pattern(self, data: pd.DataFrame, cup_end_idx: int,
-                              cup_high: float, cup_low: float) -> List[PatternSignal]:
+    def _analyze_handle_pattern(
+        self,
+        data: pd.DataFrame,
+        cup_end_idx: int,
+        cup_high: float,
+        cup_low: float,
+        cup_depth: float,
+    ) -> List[PatternSignal]:
         """Analyze handle pattern after cup formation"""
         signals = []
 
         try:
             # Define handle region (after cup formation)
             handle_start = cup_end_idx
-            handle_end = min(len(data), handle_start + self.min_handle_length + 20)  # Look ahead
+            handle_end = min(
+                len(data), handle_start + self.min_handle_length + 20
+            )  # Look ahead
 
             if handle_start >= handle_end:
                 return signals
@@ -96,8 +108,8 @@ class CupHandleDetector(BaseDetector):
             handle_data = data.iloc[handle_start:handle_end]
 
             # Check handle characteristics
-            handle_high = handle_data['high'].max()
-            handle_low = handle_data['low'].min()
+            handle_high = handle_data["high"].max()
+            handle_low = handle_data["low"].min()
 
             # Handle should not exceed cup high significantly
             if handle_high > cup_high * 1.02:
@@ -113,7 +125,7 @@ class CupHandleDetector(BaseDetector):
             for i in range(0, len(handle_data) - 1, 3):  # Sample every 3 days
                 if i + 1 < len(handle_data):
                     # Find local low in this window
-                    window_low = handle_data.iloc[i:i+3]['low'].min()
+                    window_low = handle_data.iloc[i : i + 3]["low"].min()
                     support_points.append(window_low)
 
             # Check if support points show descending trend
@@ -123,32 +135,41 @@ class CupHandleDetector(BaseDetector):
                     return signals
 
             # Check volume during handle (should be declining)
-            handle_volume = handle_data['volume'].mean()
-            cup_volume = data.iloc[handle_start - self.min_cup_length:handle_start]['volume'].mean()
+            handle_volume = handle_data["volume"].mean()
+            cup_volume = data.iloc[handle_start - self.min_cup_length : handle_start][
+                "volume"
+            ].mean()
 
             if handle_volume > cup_volume * 0.8:  # Handle volume should be lower
                 return signals
 
             # Check for breakout signal
             if len(data) > handle_end:
-                breakout_data = data.iloc[handle_end:handle_end + 5]  # Next 5 days
+                breakout_data = data.iloc[handle_end : handle_end + 5]  # Next 5 days
                 if len(breakout_data) > 0:
-                    breakout_high = breakout_data['high'].iloc[0]
-                    breakout_volume = breakout_data['volume'].iloc[0]
+                    breakout_high = breakout_data["high"].iloc[0]
+                    breakout_volume = breakout_data["volume"].iloc[0]
 
                     # Breakout above cup high with volume surge
-                    if breakout_high > cup_high and breakout_volume > handle_volume * self.min_volume_surge:
+                    if (
+                        breakout_high > cup_high
+                        and breakout_volume > handle_volume * self.min_volume_surge
+                    ):
                         # Calculate target price
                         cup_height = cup_high - cup_low
-                        target_price = cup_high + cup_height * 0.3  # 30% cup height target
+                        target_price = (
+                            cup_high + cup_height * 0.3
+                        )  # 30% cup height target
 
                         # Calculate stop loss (below handle low)
                         stop_loss = handle_low * 0.98
 
                         # Calculate confidence based on pattern quality
                         confidence = self._calculate_cup_handle_confidence(
-                            cup_depth, handle_depth, handle_volume/cup_volume,
-                            breakout_volume/handle_volume
+                            cup_depth,
+                            handle_depth,
+                            handle_volume / cup_volume,
+                            breakout_volume / handle_volume,
                         )
 
                         if confidence >= self.config.min_confidence:
@@ -160,16 +181,22 @@ class CupHandleDetector(BaseDetector):
                                 stop_loss=stop_loss,
                                 target_price=target_price,
                                 timeframe=self.config.timeframe,
-                                timestamp=data.index[handle_end] if handle_end < len(data.index) else data.index[-1],
+                                timestamp=(
+                                    data.index[handle_end]
+                                    if handle_end < len(data.index)
+                                    else data.index[-1]
+                                ),
                                 metadata={
-                                    'cup_high': cup_high,
-                                    'cup_low': cup_low,
-                                    'handle_low': handle_low,
-                                    'cup_depth': cup_depth,
-                                    'handle_depth': handle_depth,
-                                    'volume_ratio': breakout_volume / handle_volume,
-                                    'pattern_quality': 'high' if confidence > 0.8 else 'medium'
-                                }
+                                    "cup_high": cup_high,
+                                    "cup_low": cup_low,
+                                    "handle_low": handle_low,
+                                    "cup_depth": cup_depth,
+                                    "handle_depth": handle_depth,
+                                    "volume_ratio": breakout_volume / handle_volume,
+                                    "pattern_quality": (
+                                        "high" if confidence > 0.8 else "medium"
+                                    ),
+                                },
                             )
                             signals.append(signal)
 
@@ -178,16 +205,25 @@ class CupHandleDetector(BaseDetector):
 
         return signals
 
-    def _calculate_cup_handle_confidence(self, cup_depth: float, handle_depth: float,
-                                       volume_ratio: float, breakout_volume: float) -> float:
+    def _calculate_cup_handle_confidence(
+        self,
+        cup_depth: float,
+        handle_depth: float,
+        volume_ratio: float,
+        breakout_volume: float,
+    ) -> float:
         """Calculate confidence score for cup and handle pattern"""
 
         # Base confidence factors
         depth_score = 1.0 - (cup_depth / self.max_cup_depth)  # Deeper cup = lower score
-        handle_score = 1.0 - (handle_depth / self.max_handle_drop)  # Deeper handle = lower score
-        volume_score = min(1.0, breakout_volume / 2.0)  # Higher volume surge = better score
+        handle_score = 1.0 - (
+            handle_depth / self.max_handle_drop
+        )  # Deeper handle = lower score
+        volume_score = min(
+            1.0, breakout_volume / 2.0
+        )  # Higher volume surge = better score
 
         # Weighted average
-        confidence = (0.3 * depth_score + 0.2 * handle_score + 0.5 * volume_score)
+        confidence = 0.3 * depth_score + 0.2 * handle_score + 0.5 * volume_score
 
         return max(0.0, min(1.0, confidence))

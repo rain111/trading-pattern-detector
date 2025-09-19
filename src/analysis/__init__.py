@@ -10,10 +10,10 @@ from .trend_analyzer import TrendAnalyzer
 from .support_resistance import SupportResistanceDetector
 
 __all__ = [
-    'VolatilityAnalyzer',
-    'VolumeAnalyzer', 
-    'TrendAnalyzer',
-    'SupportResistanceDetector'
+    "VolatilityAnalyzer",
+    "VolumeAnalyzer",
+    "TrendAnalyzer",
+    "SupportResistanceDetector",
 ]
 
 logger.info("Analysis modules loaded successfully")

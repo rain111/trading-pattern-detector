@@ -18,18 +18,18 @@ from .rising_wedge_detector import RisingWedgeDetector
 from .falling_wedge_detector import FallingWedgeDetector
 
 __all__ = [
-    'VCPBreakoutDetector',
-    'FlagPatternDetector',
-    'TrianglePatternDetector',
-    'WedgePatternDetector',
-    'CupHandleDetector',
-    'DoubleBottomDetector',
-    'HeadAndShouldersDetector',
-    'RoundingBottomDetector',
-    'AscendingTriangleDetector',
-    'DescendingTriangleDetector',
-    'RisingWedgeDetector',
-    'FallingWedgeDetector'
+    "VCPBreakoutDetector",
+    "FlagPatternDetector",
+    "TrianglePatternDetector",
+    "WedgePatternDetector",
+    "CupHandleDetector",
+    "DoubleBottomDetector",
+    "HeadAndShouldersDetector",
+    "RoundingBottomDetector",
+    "AscendingTriangleDetector",
+    "DescendingTriangleDetector",
+    "RisingWedgeDetector",
+    "FallingWedgeDetector",
 ]
 
 logger.info("Pattern detection modules loaded successfully")

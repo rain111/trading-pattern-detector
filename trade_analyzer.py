@@ -16,7 +16,7 @@ from typing import Dict, List, Tuple, Optional
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from core.interfaces import PatternConfig, PatternEngine, DataValidator
-from data.market_data_ingestion import MarketDataIngestor
+from core.market_data import MarketDataIngestor
 from detectors import (
     VCPBreakoutDetector,
     FlagPatternDetector,

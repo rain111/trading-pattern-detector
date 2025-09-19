@@ -24,7 +24,7 @@ class HeadAndShouldersDetector(BaseDetector):
 
     def get_required_columns(self) -> List[str]:
         """Get required columns for pattern detection"""
-        return ['open', 'high', 'low', 'close', 'volume']
+        return ["open", "high", "low", "close", "volume"]
 
     def detect_pattern(self, data: pd.DataFrame) -> List[PatternSignal]:
         """Detect Head and Shoulders patterns in the data"""
@@ -44,7 +44,9 @@ class HeadAndShouldersDetector(BaseDetector):
 
         return signals
 
-    def _analyze_head_and_shoulders(self, data: pd.DataFrame, end_idx: int) -> List[PatternSignal]:
+    def _analyze_head_and_shoulders(
+        self, data: pd.DataFrame, end_idx: int
+    ) -> List[PatternSignal]:
         """Analyze potential head and shoulders pattern ending at end_idx"""
         signals = []
 
@@ -57,7 +59,9 @@ class HeadAndShouldersDetector(BaseDetector):
 
             # Look for head and shoulders formation
             if len(peaks) >= 3 and len(valleys) >= 2:
-                patterns = self._identify_head_and_shoulders(peaks, valleys, data, end_idx)
+                patterns = self._identify_head_and_shoulders(
+                    peaks, valleys, data, end_idx
+                )
                 signals.extend(patterns)
 
         except Exception as e:
@@ -65,7 +69,9 @@ class HeadAndShouldersDetector(BaseDetector):
 
         return signals
 
-    def _find_peaks_and_valleys(self, data: pd.DataFrame, start_idx: int, end_idx: int) -> tuple:
+    def _find_peaks_and_valleys(
+        self, data: pd.DataFrame, start_idx: int, end_idx: int
+    ) -> tuple:
         """Find peaks and valleys in the data"""
         try:
             window_data = data.iloc[start_idx:end_idx]
@@ -73,16 +79,20 @@ class HeadAndShouldersDetector(BaseDetector):
             # Find peaks (local maxima)
             peaks = []
             for i in range(1, len(window_data) - 1):
-                if (window_data.iloc[i]['high'] > window_data.iloc[i-1]['high'] and
-                    window_data.iloc[i]['high'] > window_data.iloc[i+1]['high']):
-                    peaks.append((start_idx + i, window_data.iloc[i]['high']))
+                if (
+                    window_data.iloc[i]["high"] > window_data.iloc[i - 1]["high"]
+                    and window_data.iloc[i]["high"] > window_data.iloc[i + 1]["high"]
+                ):
+                    peaks.append((start_idx + i, window_data.iloc[i]["high"]))
 
             # Find valleys (local minima)
             valleys = []
             for i in range(1, len(window_data) - 1):
-                if (window_data.iloc[i]['low'] < window_data.iloc[i-1]['low'] and
-                    window_data.iloc[i]['low'] < window_data.iloc[i+1]['low']):
-                    valleys.append((start_idx + i, window_data.iloc[i]['low']))
+                if (
+                    window_data.iloc[i]["low"] < window_data.iloc[i - 1]["low"]
+                    and window_data.iloc[i]["low"] < window_data.iloc[i + 1]["low"]
+                ):
+                    valleys.append((start_idx + i, window_data.iloc[i]["low"]))
 
             return peaks, valleys
 
@@ -90,7 +100,9 @@ class HeadAndShouldersDetector(BaseDetector):
             self.logger.debug(f"Error finding peaks and valleys: {e}")
             return [], []
 
-    def _identify_head_and_shoulders(self, peaks: list, valleys: list, data: pd.DataFrame, end_idx: int) -> List[PatternSignal]:
+    def _identify_head_and_shoulders(
+        self, peaks: list, valleys: list, data: pd.DataFrame, end_idx: int
+    ) -> List[PatternSignal]:
         """Identify head and shoulders pattern from peaks and valleys"""
         signals = []
 
@@ -106,8 +118,17 @@ class HeadAndShouldersDetector(BaseDetector):
                 right_shoulder = peaks_sorted[i + 2]
 
                 # Check pattern structure
-                if self._is_valid_head_and_shoulders(left_shoulder, head, right_shoulder, valleys_sorted, data, end_idx):
-                    signals = self._create_head_and_shoulders_signal(left_shoulder, head, right_shoulder, valleys_sorted, data, end_idx)
+                if self._is_valid_head_and_shoulders(
+                    left_shoulder, head, right_shoulder, valleys_sorted, data, end_idx
+                ):
+                    signals = self._create_head_and_shoulders_signal(
+                        left_shoulder,
+                        head,
+                        right_shoulder,
+                        valleys_sorted,
+                        data,
+                        end_idx,
+                    )
                     break
 
         except Exception as e:
@@ -115,8 +136,15 @@ class HeadAndShouldersDetector(BaseDetector):
 
         return signals
 
-    def _is_valid_head_and_shoulders(self, left_shoulder: tuple, head: tuple, right_shoulder: tuple,
-                                   valleys: list, data: pd.DataFrame, end_idx: int) -> bool:
+    def _is_valid_head_and_shoulders(
+        self,
+        left_shoulder: tuple,
+        head: tuple,
+        right_shoulder: tuple,
+        valleys: list,
+        data: pd.DataFrame,
+        end_idx: int,
+    ) -> bool:
         """Check if peak formation is a valid head and shoulders pattern"""
         try:
             # Check peak heights: head should be highest, shoulders should be roughly equal
@@ -152,12 +180,17 @@ class HeadAndShouldersDetector(BaseDetector):
             left_depth = head_height - left_valley[1]
             right_depth = head_height - right_valley[1]
 
-            if left_depth < self.min_valley_depth or right_depth < self.min_valley_depth:
+            if (
+                left_depth < self.min_valley_depth
+                or right_depth < self.min_valley_depth
+            ):
                 return False
 
             # Check pattern symmetry
             depth_diff = abs(left_depth - right_depth)
-            if depth_diff > max(left_depth, right_depth) * 0.3:  # More than 30% asymmetry
+            if (
+                depth_diff > max(left_depth, right_depth) * 0.3
+            ):  # More than 30% asymmetry
                 return False
 
             return True
@@ -166,8 +199,15 @@ class HeadAndShouldersDetector(BaseDetector):
             self.logger.debug(f"Error validating head and shoulders: {e}")
             return False
 
-    def _create_head_and_shoulders_signal(self, left_shoulder: tuple, head: tuple, right_shoulder: tuple,
-                                        valleys: list, data: pd.DataFrame, end_idx: int) -> List[PatternSignal]:
+    def _create_head_and_shoulders_signal(
+        self,
+        left_shoulder: tuple,
+        head: tuple,
+        right_shoulder: tuple,
+        valleys: list,
+        data: pd.DataFrame,
+        end_idx: int,
+    ) -> List[PatternSignal]:
         """Create trading signal for head and shoulders pattern"""
         signals = []
 
@@ -189,11 +229,13 @@ class HeadAndShouldersDetector(BaseDetector):
             # Calculate neckline
             neckline_start = left_valley[1]
             neckline_end = right_valley[1]
-            neckline_slope = (neckline_end - neckline_start) / (right_valley[0] - left_valley[0])
+            neckline_slope = (neckline_end - neckline_start) / (
+                right_valley[0] - left_valley[0]
+            )
 
             # Entry price (neckline breakout)
             entry_price = neckline_end
-            current_high = data.iloc[end_idx]['high']
+            current_high = data.iloc[end_idx]["high"]
 
             # Check for breakout above neckline
             if current_high > neckline_end:
@@ -210,9 +252,11 @@ class HeadAndShouldersDetector(BaseDetector):
                 )
 
                 # Calculate volume validation
-                volume_data = data.iloc[max(0, right_valley[0]-10):right_valley[0]+10]
-                avg_volume = volume_data['volume'].mean()
-                current_volume = data.iloc[end_idx]['volume']
+                volume_data = data.iloc[
+                    max(0, right_valley[0] - 10) : right_valley[0] + 10
+                ]
+                avg_volume = volume_data["volume"].mean()
+                current_volume = data.iloc[end_idx]["volume"]
                 volume_ratio = current_volume / avg_volume
 
                 signal = PatternSignal(
@@ -225,17 +269,17 @@ class HeadAndShouldersDetector(BaseDetector):
                     timeframe=self.config.timeframe,
                     timestamp=data.index[end_idx],
                     metadata={
-                        'left_shoulder_price': left_shoulder[1],
-                        'head_price': head[1],
-                        'right_shoulder_price': right_shoulder[1],
-                        'left_valley_price': left_valley[1],
-                        'right_valley_price': right_valley[1],
-                        'neckline_slope': neckline_slope,
-                        'volume_ratio': volume_ratio,
-                        'pattern_length': right_shoulder[0] - left_shoulder[0]
+                        "left_shoulder_price": left_shoulder[1],
+                        "head_price": head[1],
+                        "right_shoulder_price": right_shoulder[1],
+                        "left_valley_price": left_valley[1],
+                        "right_valley_price": right_valley[1],
+                        "neckline_slope": neckline_slope,
+                        "volume_ratio": volume_ratio,
+                        "pattern_length": right_shoulder[0] - left_shoulder[0],
                     },
                     signal_strength=min(volume_ratio / self.volume_threshold, 1.0),
-                    risk_level="medium"
+                    risk_level="medium",
                 )
                 signals.append(signal)
 
@@ -244,8 +288,14 @@ class HeadAndShouldersDetector(BaseDetector):
 
         return signals
 
-    def _calculate_head_and_shoulders_confidence(self, left_shoulder: tuple, head: tuple, right_shoulder: tuple,
-                                               left_valley: tuple, right_valley: tuple) -> float:
+    def _calculate_head_and_shoulders_confidence(
+        self,
+        left_shoulder: tuple,
+        head: tuple,
+        right_shoulder: tuple,
+        left_valley: tuple,
+        right_valley: tuple,
+    ) -> float:
         """Calculate confidence score for head and shoulders pattern"""
         confidence = 0.6  # Base confidence
 
@@ -259,7 +309,9 @@ class HeadAndShouldersDetector(BaseDetector):
         valley_depth_left = head[1] - left_valley[1]
         valley_depth_right = head[1] - right_valley[1]
         valley_depth_diff = abs(valley_depth_left - valley_depth_right)
-        valley_symmetry = 1.0 - (valley_depth_diff / max(valley_depth_left, valley_depth_right))
+        valley_symmetry = 1.0 - (
+            valley_depth_diff / max(valley_depth_left, valley_depth_right)
+        )
         confidence += valley_symmetry * 0.15
 
         # Pattern length (longer patterns are more reliable)
