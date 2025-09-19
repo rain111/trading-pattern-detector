@@ -6,8 +6,31 @@ on:
       - 'v*.*.*'
 
 jobs:
-  release:
+  test:
     runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev,test]"
+
+    - name: Run tests
+      run: |
+        pytest
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
 
     steps:
     - uses: actions/checkout@v4
@@ -56,9 +79,9 @@ jobs:
           ```
 
           ### Documentation
-          Full documentation available at: https://tradingpatterns.github.io/trading-pattern-detector/
+          Full documentation available at: https://rain111.github.io/trading-pattern-detector/
 
           ### Contributing
-          See [CONTRIBUTING.md](https://github.com/tradingpatterns/trading-pattern-detector/blob/main/CONTRIBUTING.md) for information on how to contribute to this project.
+          See [CONTRIBUTING.md](https://github.com/rain111/trading-pattern-detector/blob/main/CONTRIBUTING.md) for information on how to contribute to this project.
         draft: false
         prerelease: false

@@ -325,9 +325,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Support
 
-- Documentation: [https://trading-pattern-detector.readthedocs.io](https://trading-pattern-detector.readthedocs.io)
-- Issues: [GitHub Issues](https://github.com/tradingpatterns/trading-pattern-detector/issues)
-- Discussions: [GitHub Discussions](https://github.com/tradingpatterns/trading-pattern-detector/discussions)
+- Documentation: [https://rain111.github.io/trading-pattern-detector/](https://rain111.github.io/trading-pattern-detector/)
+- Issues: [GitHub Issues](https://github.com/rain111/trading-pattern-detector/issues)
+- Discussions: [GitHub Discussions](https://github.com/rain111/trading-pattern-detector/discussions)
 
 ## Acknowledgments
 
