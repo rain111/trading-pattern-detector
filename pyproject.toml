@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,7 +10,7 @@ authors = [
     {name = "Trading Pattern Detector Team", email = "team@tradingpatterns.com"}
 ]
 readme = "README.md"
-license = {text = "MIT"}
+license = {text = "MIT License"}
 requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -64,11 +64,8 @@ Repository = "https://github.com/tradingpatterns/trading-pattern-detector.git"
 [project.scripts]
 trading-pattern-detector = "trading_pattern_detector.cli:main"
 
-[tool.setuptools]
-packages = ["src"]
-
-[tool.setuptools.package-dir]
-"" = "src"
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.setuptools.package-data]
 "*" = ["*.py", "*.json", "*.yaml"]
