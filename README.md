@@ -62,7 +62,10 @@ pip install trading-pattern-detector
 from trading_pattern_detector import PatternEngine, PatternConfig
 from trading_pattern_detector.detectors import (
     VCPBreakoutDetector, FlagPatternDetector,
-    CupHandleDetector, DoubleBottomDetector
+    CupHandleDetector, DoubleBottomDetector,
+    HeadAndShouldersDetector, RoundingBottomDetector,
+    AscendingTriangleDetector, DescendingTriangleDetector,
+    RisingWedgeDetector, FallingWedgeDetector
 )
 import pandas as pd
 
@@ -81,7 +84,13 @@ detectors = [
     VCPBreakoutDetector(config),
     FlagPatternDetector(config),
     CupHandleDetector(config),
-    DoubleBottomDetector(config)
+    DoubleBottomDetector(config),
+    HeadAndShouldersDetector(config),
+    RoundingBottomDetector(config),
+    AscendingTriangleDetector(config),
+    DescendingTriangleDetector(config),
+    RisingWedgeDetector(config),
+    FallingWedgeDetector(config)
 ]
 
 # Initialize pattern engine
@@ -136,14 +145,85 @@ trading-pattern-detector sample-data --output sample.csv
 - Validates with volume surge confirmation
 
 ### Triangle Patterns
-- Detects ascending, descending, and symmetrical triangles
-- Analyzes trend lines and breakout points
-- Validates with volume analysis
+- **Ascending Triangle**: Breakout patterns with horizontal resistance and ascending support
+- **Descending Triangle**: Breakdown patterns with horizontal support and descending resistance
 
 ### Wedge Patterns
-- Identifies rising and falling wedges
-- Analyzes trend line convergence
-- Validates reversal patterns
+- **Rising Wedge**: Reversal pattern with ascending trendlines converging downward
+- **Falling Wedge**: Reversal pattern with descending trendlines converging upward
+
+### Head and Shoulders
+- Classic reversal pattern with three peaks (head higher than shoulders)
+- Detects neckline breakdown and validates with volume analysis
+- Provides risk/reward calculations based on pattern height
+
+### Rounding Bottom
+- Bullish reversal pattern with smooth U-shaped formation
+- Detects gradual transition from downtrend to uptrend
+- Validates with volume confirmation and neckline breakout
+
+## API Reference
+
+### PatternEngine
+Main orchestrator for pattern detection.
+
+```python
+engine = PatternEngine(detectors, config)
+signals = engine.detect_patterns(data, symbol)
+```
+
+### PatternSignal
+Represents a detected trading pattern.
+
+```python
+signal = PatternSignal(
+    symbol="AAPL",
+    pattern_type=PatternType.HEAD_AND_SHOULDERS,
+    confidence=0.85,
+    entry_price=150.0,
+    stop_loss=145.0,
+    target_price=170.0,
+    timeframe="1d",
+    timestamp=datetime.now(),
+    metadata={}
+)
+```
+
+### PatternDetector
+Base class for all pattern detectors.
+
+```python
+class CustomDetector(BaseDetector):
+    def detect_pattern(self, data: pd.DataFrame) -> List[PatternSignal]:
+        # Implementation
+        pass
+
+    def get_required_columns(self) -> List[str]:
+        return ['open', 'high', 'low', 'close', 'volume']
+```
+
+## Complete Pattern List
+
+The Trading Pattern Detector supports **12 major pattern types**:
+
+### Reversal Patterns
+- **VCP Breakout** (Volatility Contraction Pattern)
+- **Head and Shoulders** - Classic three-peak reversal pattern
+- **Double Bottom** - W-shaped bullish reversal
+- **Rounding Bottom** - Smooth U-shaped bullish reversal
+- **Rising Wedge** - Bearish reversal pattern
+
+### Continuation Patterns
+- **Flag Pattern** - Short-term continuation pattern
+- **Cup and Handle** - Bullish continuation with handle formation
+
+### Triangle Patterns
+- **Ascending Triangle** - Bullish continuation with horizontal resistance
+- **Descending Triangle** - Bearish continuation with horizontal support
+- **Falling Wedge** - Bullish continuation/reversal pattern
+
+### Additional Patterns
+- **Wedge Pattern** - General wedge detection (both rising and falling)
 
 ## Configuration
 

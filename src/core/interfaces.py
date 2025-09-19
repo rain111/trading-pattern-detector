@@ -15,6 +15,11 @@ class PatternType(Enum):
     ASCENDING_TRIANGLE = "ascending_triangle"
     DOUBLE_BOTTOM = "double_bottom"
     WEDGE_PATTERN = "wedge_pattern"
+    HEAD_AND_SHOULDERS = "head_and_shoulders"
+    ROUNDING_BOTTOM = "rounding_bottom"
+    DESCENDING_TRIANGLE = "descending_triangle"
+    RISING_WEDGE = "rising_wedge"
+    FALLING_WEDGE = "falling_wedge"
 
 
 @dataclass
