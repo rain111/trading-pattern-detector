@@ -1,0 +1,113 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for Trading Pattern Detector
+title: "[Feature] "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide as much detail as possible to help us understand your request.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What type of feature is this?
+      options:
+        - New Pattern Detection
+        - CLI Enhancement
+        - API Improvement
+        - Performance Optimization
+        - Documentation
+        - Example
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Brief summary of the requested feature
+      placeholder: Clear and concise description of what you want to happen...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? If so, please describe it
+      placeholder: I'm frustrated when... or I need to... but I can't...
+    validations:
+      required: false
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented
+      placeholder: I would like Trading Pattern Detector to... so that I can...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Describe the specific use case or scenario
+      placeholder: |
+        1. I want to detect... patterns
+        2. For analyzing... stocks
+        3. Using timeframe...
+        4. With configuration...
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples
+      description: Provide examples of how this feature would be used
+      render: python
+      placeholder: |
+        # Example usage:
+        config = PatternConfig(feature_enabled=True)
+        detector = NewFeatureDetector(config)
+        signals = detector.detect_pattern(data)
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or features you've considered
+      placeholder: I also considered... but it would be better if...
+    validations:
+      required: false
+
+  - type: textarea
+    id: implementation-notes
+    attributes:
+      label: Implementation Notes
+      description: Any implementation suggestions or considerations
+      placeholder: This might require changes to... or could be implemented as...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched for similar feature requests
+          required: true
+        - label: I have read the [documentation](https://github.com/tradingpatterns/trading-pattern-detector/blob/main/README.md)
+          required: true
+        - label: I am willing to help implement this feature
+          required: false
+        - label: I understand this is a volunteer project and may not be implemented
+          required: true

@@ -1,0 +1,76 @@
+name: Documentation Issue
+description: Report documentation problems or request improvements
+title: "[Docs] "
+labels: ["documentation", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+      value: |
+        Thanks for helping us improve the documentation! Please provide details about the documentation issue you've encountered.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation is affected?
+      options:
+        - README.md
+        - Code Examples
+        - API Documentation
+        - Installation Guide
+        - Contributing Guide
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: Clear description of the documentation issue
+      placeholder: What's wrong or missing from the documentation?
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Location
+      description: Where is the documentation issue located?
+      placeholder: |
+        File: README.md
+        Section: Installation
+        URL: https://github.com/tradingpatterns/trading-pattern-detector/blob/main/README.md#installation
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: Suggested Improvement
+      description: What improvement would you like to see?
+      placeholder: I would like the documentation to... or The documentation should include...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context or suggestions
+      placeholder: Any other information that might help improve the documentation...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have checked the existing documentation thoroughly
+          required: true
+        - label: I have searched for similar documentation issues
+          required: true
+        - label: I am willing to help improve the documentation
+          required: false

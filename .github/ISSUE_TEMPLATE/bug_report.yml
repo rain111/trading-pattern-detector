@@ -1,0 +1,116 @@
+name: Bug Report
+description: Report a bug to help us improve Trading Pattern Detector
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Please provide as much detail as possible to help us understand and fix the issue.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component is affected by this bug?
+      options:
+        - Core Engine
+        - Pattern Detection
+        - Data Validation
+        - CLI Interface
+        - Documentation
+        - Examples
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe the bug in detail...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Run command '...'
+        2. Input data: ...
+        3. Observe error: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen
+      placeholder: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: A clear and concise description of what actually happened
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: code-example
+    attributes:
+      label: Code Example
+      description: Minimal code example that reproduces the bug
+      render: python
+      placeholder: |
+        import pandas as pd
+        from trading_pattern_detector import PatternEngine, PatternConfig
+
+        # Example code here...
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Environment details
+      placeholder: |
+        Python version: 3.9.0
+        Operating System: macOS 11.0
+        Trading Pattern Detector version: 0.1.0
+        Other dependencies: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: Any additional information that might be helpful...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched for similar issues and created a minimal reproduction case
+          required: true
+        - label: I have read the [documentation](https://github.com/tradingpatterns/trading-pattern-detector/blob/main/README.md)
+          required: true
+        - label: I have checked the [existing issues](https://github.com/tradingpatterns/trading-pattern-detector/issues)
+          required: true
+        - label: I am willing to help fix this issue
+          required: false
