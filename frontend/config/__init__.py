@@ -1,0 +1,28 @@
+"""Frontend configuration module"""
+
+from .settings import *
+__all__ = [
+    'BASE_DIR',
+    'DATA_DIR',
+    'STATIC_DIR',
+    'PARQUET_DIR',
+    'CACHE_DIR',
+    'LOGS_DIR',
+    'APP_NAME',
+    'APP_VERSION',
+    'DATA_FETCH_TIMEOUT',
+    'CACHE_TTL',
+    'MAX_PARQUET_SIZE',
+    'DATA_UPDATE_INTERVAL',
+    'DEFAULT_START_DATE',
+    'DEFAULT_END_DATE',
+    'DEFAULT_CONFIDENCE_THRESHOLD',
+    'MAX_RESULTS_DISPLAY',
+    'PROGRESS_UPDATE_INTERVAL',
+    'SUPPORTED_PATTERNS',
+    'YFINANCE_RETRY_ATTEMPTS',
+    'YFINANCE_RETRY_DELAY',
+    'YFINANCE_RATE_LIMIT',
+    'PAGE_CONFIG',
+    'COLORS'
+]

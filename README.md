@@ -1,45 +1,81 @@
-# Trading Pattern Detector
+# Trading Pattern Detection System
 
-A sophisticated Python-based financial trading pattern detection system designed to identify various chart patterns in market data.
+A comprehensive Python-based financial trading pattern detection system with both powerful backend engine and user-friendly web frontend. Identify various chart patterns in market data through an intuitive Streamlit interface or direct API access.
 
 ## Features
 
-- **Pattern Detection**: Supports multiple trading patterns including:
+### 🎯 Web Frontend (Streamlit)
+- **Interactive Interface**: User-friendly web application for pattern detection
+- **Real-time Data**: Automatic market data fetching with Yahoo Finance integration
+- **Smart Caching**: Efficient data management with Parquet file storage
+- **Pattern Selection**: Choose from 12+ technical analysis patterns
+- **Visual Analytics**: Interactive charts and comprehensive result visualization
+- **Export Capabilities**: Download results in CSV, JSON formats
+- **Progress Tracking**: Real-time feedback during analysis
+
+### 🔍 Backend Pattern Detection Engine
+- **12 Technical Patterns**: Comprehensive pattern detection including:
   - VCP (Volatility Contraction Pattern) Breakout
   - Flag Patterns
   - Cup and Handle Patterns
   - Double Bottom Patterns
-  - Triangle Patterns
-  - Wedge Patterns
+  - Triangle Patterns (Ascending, Descending)
+  - Wedge Patterns (Rising, Falling)
+  - Head and Shoulders Patterns
+  - Rounding Bottom Patterns
 
-- **Comprehensive Analysis Tools**:
+- **Advanced Analysis Tools**:
   - Volatility Analysis (ATR, Bollinger Bands)
   - Volume Analysis (Volume Profile, OBV)
   - Trend Analysis (Moving Averages, Trend Detection)
   - Support/Resistance Level Detection
 
-- **Advanced Architecture**:
-  - Plugin system for extensibility
-  - Configurable pattern parameters
-  - Robust data validation
-  - Confidence scoring system
-  - Comprehensive error handling
-
 - **Professional Features**:
   - Signal aggregation and filtering
-  - Multiple timeframe analysis
   - Risk management parameters
-  - Extensive test coverage
+  - Confidence scoring system
+  - Performance metrics calculation
+  - Sharpe ratio analysis
+  - Comprehensive test coverage
   - Well-documented API
 
 ## Installation
 
-### From Source
+### Prerequisites
+- Python 3.8+
+- pip package manager
+
+### Quick Start with Web Frontend
 
 ```bash
+# Clone the repository
 git clone https://github.com/tradingpatterns/trading-pattern-detector.git
 cd trading-pattern-detector
-pip install -e .
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install Streamlit frontend dependencies
+cd frontend
+pip install -r requirements.txt
+cd ..
+
+# Launch the web application
+streamlit run frontend/app.py
+```
+
+### Backend-Only Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/tradingpatterns/trading-pattern-detector.git
+cd trading-pattern-detector
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install in development mode
+pip install -e ".[dev]"
 ```
 
 ### Development Installation
@@ -50,17 +86,31 @@ cd trading-pattern-detector
 pip install -e ".[dev]"
 ```
 
-### Using pip (when published)
-
-```bash
-pip install trading-pattern-detector
-```
-
 ## Quick Start
 
+### 🌐 Web Frontend Usage
+
+Launch the interactive web application:
+
+```bash
+streamlit run frontend/app.py
+```
+
+The web interface provides:
+- **Symbol Input**: Enter any stock symbol
+- **Date Range Selection**: Choose your analysis period
+- **Pattern Selection**: Pick from 12+ technical patterns
+- **Confidence Threshold**: Adjust detection sensitivity
+- **Real-time Analysis**: Automatic data fetching and pattern detection
+- **Interactive Visualizations**: Charts and detailed results
+- **Export Options**: Download results in multiple formats
+
+### 🐍 Backend API Usage
+
 ```python
-from trading_pattern_detector import PatternEngine, PatternConfig
-from trading_pattern_detector.detectors import (
+from src.core.interfaces import PatternEngine, PatternConfig
+from src.core.market_data import MarketDataIngestor
+from detectors import (
     VCPBreakoutDetector, FlagPatternDetector,
     CupHandleDetector, DoubleBottomDetector,
     HeadAndShouldersDetector, RoundingBottomDetector,
@@ -69,8 +119,9 @@ from trading_pattern_detector.detectors import (
 )
 import pandas as pd
 
-# Load your market data
-data = pd.read_csv('your_market_data.csv')
+# Fetch market data automatically
+ingestor = MarketDataIngestor()
+data = ingestor.fetch_stock_data("AAPL", period="2y", interval="1d")
 
 # Configure pattern detection
 config = PatternConfig(
@@ -112,94 +163,132 @@ for signal in signals:
 ## Command Line Interface
 
 ```bash
-# Analyze a CSV file
-trading-pattern-detector analyze data.csv --symbol AAPL --min-confidence 0.7
+# Analyze a CSV file using backend
+python analysis_scripts/trade_analyzer.py
 
-# List available patterns
-trading-pattern-detector patterns
+# Run comprehensive backtesting
+python analysis_scripts/comprehensive_backtest.py
 
-# Generate example data
-trading-pattern-detector sample-data --output sample.csv
+# Real AAPL analysis
+python analysis_scripts/real_aapl_analysis.py
+
+# Quick pattern test
+python testing/quick_backtest.py
 ```
 
 ## Supported Patterns
 
-### VCP Breakout
-- Detects volatility contraction patterns followed by breakouts
-- Uses ATR analysis and volume validation
-- Includes stage-by-stage pattern recognition
+### Reversal Patterns
+- **VCP Breakout**: Detects volatility contraction patterns followed by breakouts with ATR analysis
+- **Head and Shoulders**: Classic reversal pattern with three peaks and neckline breakdown
+- **Double Bottom**: W-shaped bullish reversal with neckline formation validation
+- **Rounding Bottom**: Smooth U-shaped bullish reversal with volume confirmation
 
-### Flag Pattern
-- Identifies flag and pennant continuation patterns
-- Analyzes volume decline during consolidation
-- Validates breakout with volume surge
+### Continuation Patterns
+- **Flag Pattern**: Short-term continuation patterns with volume decline analysis
+- **Cup and Handle**: Bullish continuation with cup formation and handle consolidation
+- **Ascending Triangle**: Bullish continuation with horizontal resistance and ascending support
+- **Descending Triangle**: Bearish continuation with horizontal support and descending resistance
 
-### Cup and Handle
-- Detects cup-shaped reversal patterns with handle
-- Analyzes cup depth and handle formation
-- Validates breakout with volume confirmation
+### Breakout Patterns
+- **Rising Wedge**: Bearish reversal pattern with ascending trendlines converging downward
+- **Falling Wedge**: Bullish continuation pattern with descending trendlines converging upward
 
-### Double Bottom
-- Identifies W-shaped reversal patterns
-- Analyzes neckline formation and breakout
-- Validates with volume surge confirmation
+## Web Interface Features
 
-### Triangle Patterns
-- **Ascending Triangle**: Breakout patterns with horizontal resistance and ascending support
-- **Descending Triangle**: Breakdown patterns with horizontal support and descending resistance
+### 📊 Data Management
+- **Automatic Data Fetching**: Real-time market data from Yahoo Finance
+- **Parquet Storage**: Efficient local storage with automatic updates
+- **Smart Caching**: Memory caching for improved performance
+- **Data Validation**: OHLC relationship validation and cleaning
 
-### Wedge Patterns
-- **Rising Wedge**: Reversal pattern with ascending trendlines converging downward
-- **Falling Wedge**: Reversal pattern with descending trendlines converging upward
+### 🎯 Pattern Detection
+- **Interactive Selection**: Choose from 12+ technical analysis patterns
+- **Confidence Scoring**: Pattern-specific confidence metrics
+- **Real-time Analysis**: Progress tracking during detection
+- **Batch Processing**: Multiple patterns analyzed simultaneously
 
-### Head and Shoulders
-- Classic reversal pattern with three peaks (head higher than shoulders)
-- Detects neckline breakdown and validates with volume analysis
-- Provides risk/reward calculations based on pattern height
-
-### Rounding Bottom
-- Bullish reversal pattern with smooth U-shaped formation
-- Detects gradual transition from downtrend to uptrend
-- Validates with volume confirmation and neckline breakout
+### 📈 Visualization & Analytics
+- **Interactive Charts**: Price charts with pattern overlays
+- **Performance Metrics**: Win ratios, Sharpe ratios, maximum drawdown
+- **Pattern Analysis**: Detailed pattern characteristics and statistics
+- **Export Capabilities**: CSV, JSON export options
 
 ## API Reference
 
-### PatternEngine
-Main orchestrator for pattern detection.
+### Core Backend Classes
 
 ```python
-engine = PatternEngine(detectors, config)
-signals = engine.detect_patterns(data, symbol)
+from src.core.interfaces import PatternEngine, PatternConfig, PatternSignal
+from src.core.market_data import MarketDataIngestor
+from src.core.interfaces import DataValidator
+
+# Configure pattern detection
+config = PatternConfig(
+    min_confidence=0.7,
+    max_lookback=100,
+    volume_threshold=1000000.0
+)
+
+# Initialize pattern engine
+engine = PatternEngine(detectors)
+
+# Fetch market data
+ingestor = MarketDataIngestor()
+data = ingestor.fetch_stock_data("AAPL", period="2y", interval="1d")
+
+# Detect patterns
+signals = engine.detect_patterns(data, 'AAPL')
+
+# Process signals
+for signal in signals:
+    print(f"Pattern: {signal.pattern_type}")
+    print(f"Confidence: {signal.confidence:.2f}")
+    print(f"Entry: ${signal.entry_price:.2f}")
+    print(f"Stop Loss: ${signal.stop_loss:.2f}")
+    print(f"Target: ${signal.target_price:.2f}")
 ```
 
-### PatternSignal
-Represents a detected trading pattern.
+### Pattern Signal Structure
 
 ```python
 signal = PatternSignal(
     symbol="AAPL",
-    pattern_type=PatternType.HEAD_AND_SHOULDERS,
+    pattern_type=PatternType.DOUBLE_BOTTOM,
     confidence=0.85,
     entry_price=150.0,
     stop_loss=145.0,
     target_price=170.0,
-    timeframe="1d",
-    timestamp=datetime.now(),
-    metadata={}
+    risk_level="medium",
+    expected_duration="1-2 weeks",
+    signal_strength=0.8,
+    metadata={'key': 'value'}
 )
 ```
 
-### PatternDetector
-Base class for all pattern detectors.
+### Frontend Integration
 
 ```python
-class CustomDetector(BaseDetector):
-    def detect_pattern(self, data: pd.DataFrame) -> List[PatternSignal]:
-        # Implementation
-        pass
+from frontend.integration import PatternDetectionEngine
+from frontend.data import DataManager
+from frontend.components import InputForm, ResultsDisplay
 
-    def get_required_columns(self) -> List[str]:
-        return ['open', 'high', 'low', 'close', 'volume']
+# Initialize components
+engine = PatternDetectionEngine()
+input_form = InputForm()
+results_display = ResultsDisplay()
+
+# Run pattern detection
+results = await engine.detect_patterns(
+    symbol="AAPL",
+    start_date=datetime(2023, 1, 1),
+    end_date=datetime(2023, 4, 1),
+    pattern_types=["DOUBLE_BOTTOM", "FLAG_PATTERN"],
+    confidence_threshold=0.5
+)
+
+# Display results
+results_display.display_results(results, form_data)
 ```
 
 ## Complete Pattern List
