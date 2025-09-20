@@ -9,8 +9,8 @@ import os
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from core.interfaces import PatternConfig, PatternSignal, PatternType
-from utils.data_preprocessor import DataPreprocessor
+from src.core.interfaces import PatternConfig, PatternSignal, PatternType
+from src.utils.data_preprocessor import DataPreprocessor
 
 
 @pytest.fixture

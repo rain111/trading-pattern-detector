@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime, timedelta
 import logging
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 
 class DataPreprocessor:
@@ -11,6 +13,7 @@ class DataPreprocessor:
     def __init__(self):
         self.price_columns = ["open", "high", "low", "close", "volume"]
         self.logger = logging.getLogger(self.__class__.__name__)
+        self._executor = ThreadPoolExecutor(max_workers=4)
 
     def clean_data(self, data: pd.DataFrame) -> pd.DataFrame:
         """Clean and validate market data"""
@@ -37,7 +40,7 @@ class DataPreprocessor:
         try:
             # For price data, forward fill then interpolate
             price_data = data[["open", "high", "low", "close"]]
-            price_data = price_data.fillna(method="ffill").interpolate()
+            price_data = price_data.ffill().interpolate()
 
             # For volume, fill with median
             volume_data = data["volume"].fillna(data["volume"].median())
@@ -46,7 +49,7 @@ class DataPreprocessor:
             other_columns = data.drop(
                 columns=["open", "high", "low", "close", "volume"]
             )
-            other_columns = other_columns.fillna(method="ffill")
+            other_columns = other_columns.ffill()
 
             return pd.concat([price_data, volume_data, other_columns], axis=1)
         except Exception as e:
@@ -371,3 +374,333 @@ class DataPreprocessor:
         except Exception as e:
             self.logger.error(f"Error adding test patterns: {e}")
             return data
+
+    # Async Methods
+    async def clean_data_async(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Asynchronously clean and validate market data"""
+        try:
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(self._executor, self.clean_data, data)
+        except Exception as e:
+            self.logger.error(f"Error cleaning data asynchronously: {e}")
+            return data
+
+    async def resample_data_async(self, data: pd.DataFrame, timeframe: str = "1D") -> pd.DataFrame:
+        """Asynchronously resample data to different timeframe"""
+        try:
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(self._executor, self.resample_data, data, timeframe)
+        except Exception as e:
+            self.logger.error(f"Error resampling data asynchronously: {e}")
+            return data
+
+    async def add_technical_indicators_async(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Asynchronously add technical indicators to data"""
+        try:
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(self._executor, self.add_technical_indicators, data)
+        except Exception as e:
+            self.logger.error(f"Error adding technical indicators asynchronously: {e}")
+            return data
+
+    async def normalize_data_async(self, data: pd.DataFrame, method: str = "minmax") -> pd.DataFrame:
+        """Asynchronously normalize data for analysis"""
+        try:
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(self._executor, self.normalize_data, data, method)
+        except Exception as e:
+            self.logger.error(f"Error normalizing data asynchronously: {e}")
+            return data
+
+    async def calculate_returns_async(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Asynchronously calculate various return metrics"""
+        try:
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(self._executor, self.calculate_returns, data)
+        except Exception as e:
+            self.logger.error(f"Error calculating returns asynchronously: {e}")
+            return data
+
+    async def align_data_timestamps_async(self, data: pd.DataFrame, timezone: str = "UTC") -> pd.DataFrame:
+        """Asynchronously align data timestamps"""
+        try:
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(self._executor, self.align_data_timestamps, data, timezone)
+        except Exception as e:
+            self.logger.error(f"Error aligning timestamps asynchronously: {e}")
+            return data
+
+    async def validate_clean_data_async(self, data: pd.DataFrame) -> bool:
+        """Asynchronously validate that data is properly cleaned"""
+        try:
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(self._executor, self.validate_clean_data, data)
+        except Exception as e:
+            self.logger.error(f"Error validating clean data asynchronously: {e}")
+            return False
+
+    # Batch Processing Methods
+    async def process_multiple_symbols_async(
+        self,
+        data_dict: Dict[str, pd.DataFrame],
+        operations: List[str] = None
+    ) -> Dict[str, pd.DataFrame]:
+        """Process multiple symbols asynchronously"""
+        if operations is None:
+            operations = ["clean", "indicators", "returns"]
+
+        results = {}
+        tasks = []
+
+        for symbol, data in data_dict.items():
+            task = self._process_single_symbol_async(symbol, data, operations)
+            tasks.append(task)
+
+        task_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        for (symbol, _), result in zip(data_dict.items(), task_results):
+            if isinstance(result, Exception):
+                self.logger.error(f"Error processing {symbol}: {result}")
+                results[symbol] = pd.DataFrame()
+            else:
+                results[symbol] = result
+
+        return results
+
+    async def _process_single_symbol_async(
+        self,
+        symbol: str,
+        data: pd.DataFrame,
+        operations: List[str]
+    ) -> pd.DataFrame:
+        """Process single symbol with specified operations"""
+        processed_data = data.copy()
+
+        try:
+            for operation in operations:
+                if operation == "clean":
+                    processed_data = await self.clean_data_async(processed_data)
+                elif operation == "indicators":
+                    processed_data = await self.add_technical_indicators_async(processed_data)
+                elif operation == "returns":
+                    processed_data = await self.calculate_returns_async(processed_data)
+                elif operation == "normalize":
+                    processed_data = await self.normalize_data_async(processed_data)
+
+            return processed_data
+
+        except Exception as e:
+            self.logger.error(f"Error processing {symbol}: {e}")
+            return data
+
+    async def preprocess_pipeline_async(
+        self,
+        data: pd.DataFrame,
+        operations: List[str] = None,
+        timeframe: Optional[str] = None
+    ) -> pd.DataFrame:
+        """Asynchronous preprocessing pipeline"""
+        if operations is None:
+            operations = ["clean", "indicators", "returns"]
+
+        try:
+            processed_data = data.copy()
+
+            for operation in operations:
+                if operation == "clean":
+                    processed_data = await self.clean_data_async(processed_data)
+                elif operation == "indicators":
+                    processed_data = await self.add_technical_indicators_async(processed_data)
+                elif operation == "returns":
+                    processed_data = await self.calculate_returns_async(processed_data)
+                elif operation == "normalize":
+                    processed_data = await self.normalize_data_async(processed_data)
+                elif operation == "resample" and timeframe:
+                    processed_data = await self.resample_data_async(processed_data, timeframe)
+                elif operation == "timestamps":
+                    processed_data = await self.align_data_timestamps_async(processed_data)
+
+            return processed_data
+
+        except Exception as e:
+            self.logger.error(f"Error in preprocessing pipeline: {e}")
+            return data
+
+    # Parallel Processing with Performance Tracking
+    async def process_with_performance_tracking_async(
+        self,
+        data_dict: Dict[str, pd.DataFrame],
+        operations: List[str] = None
+    ) -> Tuple[Dict[str, pd.DataFrame], Dict[str, float]]:
+        """Process data with performance tracking"""
+        import time
+
+        if operations is None:
+            operations = ["clean", "indicators", "returns"]
+
+        start_time = time.time()
+        results = {}
+        performance_data = {}
+
+        # Process each symbol and track time
+        for symbol, data in data_dict.items():
+            symbol_start = time.time()
+            processed_data = await self._process_single_symbol_async(symbol, data, operations)
+            symbol_end = time.time()
+
+            results[symbol] = processed_data
+            performance_data[symbol] = symbol_end - symbol_start
+
+        total_time = time.time() - start_time
+        performance_data['total_time'] = total_time
+
+        self.logger.info(f"Processed {len(data_dict)} symbols in {total_time:.2f} seconds")
+        return results, performance_data
+
+    # Memory Efficient Processing
+    async def process_large_dataset_async(
+        self,
+        data: pd.DataFrame,
+        chunk_size: int = 10000,
+        operations: List[str] = None
+    ) -> pd.DataFrame:
+        """Process large datasets in chunks to minimize memory usage"""
+        if operations is None:
+            operations = ["clean", "indicators", "returns"]
+
+        try:
+            if len(data) <= chunk_size:
+                # Small dataset - process directly
+                return await self.preprocess_pipeline_async(data, operations)
+
+            # Large dataset - process in chunks
+            chunks = []
+            for i in range(0, len(data), chunk_size):
+                chunk = data.iloc[i:i + chunk_size]
+                processed_chunk = await self.preprocess_pipeline_async(chunk, operations)
+                chunks.append(processed_chunk)
+
+            # Combine chunks
+            combined_data = pd.concat(chunks, ignore_index=True)
+            return combined_data
+
+        except Exception as e:
+            self.logger.error(f"Error processing large dataset: {e}")
+            return data
+
+    async def validate_async(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """Asynchronous validation with detailed reporting"""
+        try:
+            loop = asyncio.get_event_loop()
+
+            # Run validation checks in parallel
+            validation_tasks = [
+                loop.run_in_executor(self._executor, self._check_required_columns, data),
+                loop.run_in_executor(self._executor, self._check_missing_values, data),
+                loop.run_in_executor(self._executor, self._check_price_consistency, data),
+                loop.run_in_executor(self._executor, self._check_sufficient_data, data)
+            ]
+
+            validation_results = await asyncio.gather(*validation_tasks, return_exceptions=True)
+
+            # Compile validation report
+            report = {
+                'is_valid': True,
+                'issues': [],
+                'warnings': [],
+                'data_quality_score': 100.0
+            }
+
+            for result in validation_results:
+                if isinstance(result, Exception):
+                    report['issues'].append(f"Validation error: {str(result)}")
+                    report['is_valid'] = False
+                elif isinstance(result, dict):
+                    if not result.get('valid', True):
+                        report['is_valid'] = False
+                        report['issues'].extend(result.get('issues', []))
+                    report['warnings'].extend(result.get('warnings', []))
+                elif result is False:
+                    report['is_valid'] = False
+
+            # Calculate data quality score
+            if report['is_valid'] and not report['issues']:
+                report['data_quality_score'] = 100.0
+            elif report['is_valid'] and report['issues']:
+                report['data_quality_score'] = max(0, 100.0 - len(report['issues']) * 10)
+            else:
+                report['data_quality_score'] = 0.0
+
+            return report
+
+        except Exception as e:
+            self.logger.error(f"Error in async validation: {e}")
+            return {
+                'is_valid': False,
+                'issues': [f"Validation error: {str(e)}"],
+                'warnings': [],
+                'data_quality_score': 0.0
+            }
+
+    # Private helper methods for validation
+    def _check_required_columns(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """Check if required columns exist"""
+        required_columns = ["open", "high", "low", "close", "volume"]
+        missing_columns = [col for col in required_columns if col not in data.columns]
+
+        if missing_columns:
+            return {
+                'valid': False,
+                'issues': [f"Missing required columns: {missing_columns}"]
+            }
+        return {'valid': True}
+
+    def _check_missing_values(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """Check for missing values"""
+        issues = []
+        warnings = []
+
+        for col in ["open", "high", "low", "close", "volume"]:
+            if col in data.columns:
+                missing_pct = (data[col].isna().sum() / len(data)) * 100
+                if missing_pct > 0:
+                    if missing_pct > 5:
+                        issues.append(f"Column '{col}' has {missing_pct:.1f}% missing values")
+                    else:
+                        warnings.append(f"Column '{col}' has {missing_pct:.1f}% missing values")
+
+        if issues:
+            return {'valid': False, 'issues': issues, 'warnings': warnings}
+        return {'valid': True, 'warnings': warnings}
+
+    def _check_price_consistency(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """Check price data consistency"""
+        issues = []
+        warnings = []
+
+        if "high" in data.columns and "low" in data.columns:
+            inconsistent_mask = data["high"] < data["low"]
+            if inconsistent_mask.any():
+                count = inconsistent_mask.sum()
+                issues.append(f"Found {count} rows where high < low")
+
+        if "open" in data.columns and "close" in data.columns:
+            negative_mask = data["close"] <= 0
+            if negative_mask.any():
+                count = negative_mask.sum()
+                warnings.append(f"Found {count} rows with non-positive closing prices")
+
+        if issues:
+            return {'valid': False, 'issues': issues, 'warnings': warnings}
+        return {'valid': True, 'warnings': warnings}
+
+    def _check_sufficient_data(self, data: pd.DataFrame) -> bool:
+        """Check if there's sufficient data"""
+        if len(data) < 20:
+            return False
+        return True
+
+    def close(self):
+        """Clean up resources"""
+        if hasattr(self, '_executor'):
+            self._executor.shutdown(wait=False)

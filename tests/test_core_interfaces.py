@@ -1,10 +1,15 @@
+import sys
+from pathlib import Path
+# Add src directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
 import pytest
 import pandas as pd
 import numpy as np
 from datetime import datetime
 from typing import List, Dict, Any
 
-from core.interfaces import (
+from src.core.interfaces import (
     PatternConfig,
     PatternSignal,
     PatternType,
